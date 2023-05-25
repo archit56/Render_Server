@@ -3,9 +3,9 @@ require("dotenv").config();
 // console.log(process.env);
 const mongoose_resources_page = require("mongoose");
 const mongoose = require('mongoose');
-mongoose.connect(process.env.MONGODB_URI);
+mongoose.createConnection(process.env.MONGODB_URI);
 let db_name = "Test2";
-mongoose_resources_page.connect(process.env.MONGODB_URI_RESOURCES + db_name)
+mongoose_resources_page.createConnection(process.env.MONGODB_URI_RESOURCES + db_name)
 
 const port = process.env.port || 5000;
 
