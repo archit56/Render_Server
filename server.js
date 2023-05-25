@@ -46,7 +46,7 @@ const ResourcesSchema = new mongoose_resources_page.Schema({
 
 const User = mongoose.model('users', UserSchema);
 const ResourcesModel = mongoose_resources_page.model('user', ResourcesSchema);
-User.createIndexes();
+// User.createIndexes();
 
 // For backend and express
 const express = require('express');
@@ -58,11 +58,7 @@ app.use(cors());
 app.get("/", (req, resp) => {
 
 	resp.send("App is Working");
-	// You can check backend is working or not by
-	// entering http://loacalhost:5000
-	
-	// If you see App is working means
-	// backend working properly
+
 });
 
 app.post("/register", async (req, resp) => {
