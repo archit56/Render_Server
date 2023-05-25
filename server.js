@@ -1,11 +1,11 @@
 // To connect with your mongoDB database
 require("dotenv").config();
 // console.log(process.env);
-const mongoose_resources_page = require("mongoose");
+// const mongoose_resources_page = require("mongoose");
 const mongoose = require('mongoose');
-mongoose.createConnection(process.env.MONGODB_URI);
+const db1 = mongoose.createConnection(process.env.MONGODB_URI);
 let db_name = "Test2";
-mongoose_resources_page.createConnection(process.env.MONGODB_URI_RESOURCES + db_name)
+const dbResources = mongoose.createConnection(process.env.MONGODB_URI_RESOURCES + db_name)
 
 const port = process.env.port || 5000;
 
@@ -28,7 +28,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Schema for Resources-page
-const ResourcesSchema = new mongoose_resources_page.Schema({
+const ResourcesSchema = new mongoose.Schema({
 	title: {
 		type: String,
 	},
@@ -44,8 +44,8 @@ const ResourcesSchema = new mongoose_resources_page.Schema({
 	},
 });
 
-const User = mongoose.model('users', UserSchema);
-const ResourcesModel = mongoose_resources_page.model('user', ResourcesSchema);
+const User = db1.model('users', UserSchema);
+const ResourcesModel = dbResources.model('user', ResourcesSchema);
 // User.createIndexes();
 
 // For backend and express
@@ -98,7 +98,7 @@ app.get("/api", (req, res) => {
 })
 
 app.get("/apiResources", (req, res) => {
-	userResources.find({}).then((data) => {
+	ResourcesModel.find({}).then((data) => {
 		res.send(data)
 		return data;
 	})
