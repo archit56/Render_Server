@@ -1,8 +1,11 @@
 // To connect with your mongoDB database
 require("dotenv").config();
 // console.log(process.env);
+const mongoose_resources_page = require("mongoose");
 const mongoose = require('mongoose');
 mongoose.connect(process.env.MONGODB_URI);
+let db_name = "Test2";
+mongoose_resources_page.connect(process.env.MONGODB_URI_RESOURCES + db_name)
 
 const port = process.env.port || 5000;
 
@@ -23,7 +26,26 @@ const UserSchema = new mongoose.Schema({
 		default: Date.now,
 	},
 });
+
+// Schema for Resources-page
+const ResourcesSchema = new mongoose_resources_page.Schema({
+	title: {
+		type: String,
+	},
+	desc: {
+		type: String,
+	},
+	link: {
+		type: String
+	},
+	date: {
+		type: Date,
+		default: Date.now,
+	},
+});
+
 const User = mongoose.model('users', UserSchema);
+const ResourcesModel = mongoose_resources_page.model('user', ResourcesSchema);
 User.createIndexes();
 
 // For backend and express
@@ -61,14 +83,29 @@ app.post("/register", async (req, resp) => {
 	}
 });
 
+app.post("/registerResource", async (req, resp) => {
+	try {
+		const userResources = new ResourcesModel(req.body);
+		let resultResources = await userResources.save();
+		resultResources = resultResources.toObject();
+
+	} catch (e) {
+		resp.send("Something Went Wrong");
+	}
+});
+
 app.get("/api", (req, res) => {
 	User.find({}).then((data) => {
 		res.send(data)
 		return data;
 	})
+})
 
-	// let myData = {"name": "Archit", "age": "19"}
-
+app.get("/apiResources", (req, res) => {
+	userResources.find({}).then((data) => {
+		res.send(data)
+		return data;
+	})
 })
 
 app.post("/delete", async (req, res) => {
@@ -76,7 +113,15 @@ app.post("/delete", async (req, res) => {
 	const uniqueID = req.body.uniqueID;
 
     User.deleteOne({ _id:  uniqueID}).then((e) => {console.log(e)});
-    await res.redirect("http://localhost:3000")
+
+})
+
+app.post("/deleteResources", async (req, res) => {
+	console.log(req.body)
+	const uniqueResourceID = req.body.uniqueID;
+
+    userResources.deleteOne({ _id:  uniqueResourceID}).then((e) => {console.log(e)});
+
 })
 
 // app.post("/update", (req, res) => {
@@ -97,54 +142,3 @@ app.post("/delete", async (req, res) => {
 app.listen(port, () => {
 	console.log("Listening on the PORT for requests...")
 })
-
-
-
-
-
-
-
-
-
-
-
-// !-------------------------------------------------------------------------------------------------------------------------------------------
-
-// const { ObjectId } = require('mongodb');
-// const express = require('express');
-// const mongoose = require('mongoose');
-// const app = express();
-// const PORT = process.env.PORT || 5000;
-
-// // Connect to MongoDB
-// mongoose.connect('mongodb+srv://archit:test123@startingcluster.wefgydk.mongodb.net/ReactTest', { useNewUrlParser: true, useUnifiedTopology: true })
-//   .then(() => {
-//     console.log('Connected to MongoDB');
-//     app.listen(PORT, () => {
-//       console.log(`Server listening on port ${PORT}`);
-//     });
-//   })
-//   .catch((error) => {
-//     console.error('Error connecting to MongoDB:', error);
-//   });
-
-// // Define your API routes and logic here
-// app.get('/api/data', (req, res) => {
-//   // Retrieve data from MongoDB using Mongoose
-//   MyModel.find({})
-//     .then((data) => {
-//       res.json(data); // Send the data back as a JSON response
-//     })
-//     .catch((error) => {
-//       console.error('Error retrieving data from MongoDB:', error);
-//       res.status(500).json({ error: 'Internal server error' });
-//     });
-// });
-
-// // Define your Mongoose model
-// const MyModel = mongoose.model('MyModel', new mongoose.Schema({
-//   // Define your schema here
-//   name: String,
-//   // other properties...
-// }));
-
