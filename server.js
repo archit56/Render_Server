@@ -112,6 +112,7 @@ app.post("/delete", async (req, res) => {
 
 })
 
+// resource page
 app.post("/deleteResources", async (req, res) => {
 	console.log(req.body)
 	const uniqueResourceID = req.body.uniqueID;
