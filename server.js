@@ -1,12 +1,11 @@
-// To connect with your mongoDB database
+
 require("dotenv").config();
 // console.log(process.env);
 
 const mongoose = require('mongoose');
 
 const db1 = mongoose.createConnection(process.env.MONGODB_URI);
-let db_name = "Test2";
-const dbResources = mongoose.createConnection(process.env.MONGODB_URI_RESOURCES + db_name)
+const dbResources = mongoose.createConnection(process.env.MONGODB_URI_RESOURCES + "Test2")
 const dbAnnouncements = mongoose.createConnection(process.env.MONGODB_URI_ANNOUNCEMENTS + "Announcements")
 const dbAdmissions = mongoose.createConnection(process.env.MONGODB_URI_ADMISSIONS + "Admissions")
 const dbAbout = mongoose.createConnection(`${process.env.MONGODB_URI_ABOUT}About`)
@@ -111,10 +110,10 @@ const AboutSchema = new mongoose.Schema({
 	email: {
 		type: String
 	},
-	phone : {
+	phone: {
 		type: String
 	},
-	resumeLink : {
+	resumeLink: {
 		type: String
 	},
 	date: {
@@ -136,7 +135,12 @@ const app = express();
 const cors = require("cors");
 console.log("App listen at port 5000");
 app.use(express.json());
+// app.use((req, res, next) => {
+// 	res.header("Access-Control-Allow-Origin", "*")
+//   })
 app.use(cors());
+
+
 app.get("/", (req, resp) => {
 	resp.send("App is Working");
 });
@@ -160,7 +164,7 @@ app.post("/register", async (req, resp) => {
 	}
 });
 
-app.post("/registerResource", async (req, resp) => {
+app.post("/registerResources", async (req, resp) => {
 	console.log(req.body);
 	try {
 		const userResources = new ResourcesModel(req.body);
@@ -196,7 +200,7 @@ app.post("/registerAnnouncements", async (req, resp) => {
 	}
 });
 
-app.post("/registerAbout", async (req, resp) => {
+app.post("/registerAbouts", async (req, resp) => {
 	console.log(req.body);
 	try {
 		const userAbouts = new AboutModel(req.body);
@@ -247,7 +251,7 @@ app.post("/delete", async (req, res) => {
 	console.log(req.body)
 	const uniqueID = req.body.uniqueID;
 
-    User.deleteOne({ _id:  uniqueID}).then((e) => {console.log(e)});
+	User.deleteOne({ _id: uniqueID }).then((e) => { console.log(e) });
 
 })
 
@@ -257,7 +261,7 @@ app.post("/deleteResources", async (req, res) => {
 	const uniqueResourcesId = req.body.key;
 
 	console.log("the _id is: " + uniqueResourcesId);
-   ResourcesModel.deleteOne({ _id: uniqueResourcesId}).then((e) => {console.log(e)});
+	ResourcesModel.deleteOne({ _id: uniqueResourcesId }).then((e) => { console.log(e) });
 })
 
 // Admissions page
@@ -266,7 +270,7 @@ app.post("/deleteAdmissions", async (req, res) => {
 	const uniqueAdmissionsId = req.body.key;
 
 	console.log("the _id is: " + uniqueAdmissionsId);
-    AdmissionsModel.deleteOne({ _id: uniqueAdmissionsId}).then((e) => {console.log(e)});
+	AdmissionsModel.deleteOne({ _id: uniqueAdmissionsId }).then((e) => { console.log(e) });
 })
 
 // Announcements page
@@ -275,7 +279,7 @@ app.post("/deleteAnnouncements", async (req, res) => {
 	const uniqueAnnouncementsId = req.body.key;
 
 	console.log("the _id is: " + uniqueAnnouncementsId);
-    AnnouncementsModel.deleteOne({ _id: uniqueAnnouncementsId}).then((e) => {console.log(e)});
+	AnnouncementsModel.deleteOne({ _id: uniqueAnnouncementsId }).then((e) => { console.log(e) });
 })
 
 // Abouts page
@@ -284,24 +288,100 @@ app.post("/deleteAbouts", async (req, res) => {
 	const uniqueAboutsId = req.body.key;
 
 	console.log("the _id is: " + uniqueAboutsId);
-    AboutModel.deleteOne({ _id: uniqueAboutsId}).then((e) => {console.log(e)});
+	AboutModel.deleteOne({ _id: uniqueAboutsId }).then((e) => { console.log(e) });
 })
 
-// app.post("/update", (req, res) => {
+app.post("/updateAbouts", async (req, res) => {
+	console.log("This is /updateAbouts...")
+	const objBody = req.body;
+	console.log(objBody);
+	const aboutsUniqueId = req.body.documentKey;
 
-//     const checkbox2Id = req.body.checkbox2;
-//     console.log(checkbox2Id);
+	console.log("The _id is " + aboutsUniqueId);
+	AboutModel.updateOne({ _id: aboutsUniqueId }, {
+		$set: {
+			name: objBody.name,
+			img: objBody.img,
+			desig: objBody.desig,
+			email: objBody.email,
+			phone: objBody.phone,
+			resumeLink: objBody.resumeLink
+		}
+	}).then(ack => console.log(ack));
+})
 
-//     const toDolist = User.find({_id: checkbox2Id}).then((member => {
-//         console.log("This is the member" + member)
-//         res.render("update", { itemsObj: member });
-//     }));
+app.post("/updateResources", async (req, res) => {
+	console.log("This is /updateResources...")
+	const objBody = req.body;
+	console.log(objBody);
+	const resourcesUniqueId = req.body.documentKey;
 
-    
-//     // listModel.updateOne({_id: checkbox2Id}).then()
-// })
+	console.log("The _id is " + resourcesUniqueId);
+	ResourcesModel.updateOne({ _id: resourcesUniqueId }, {
+		$set: {
+			title: objBody.title,
+			desc: objBody.desc,
+			link: objBody.link
+		}
+	}).then(ack => {
+		console.log(ack);
+		if (ack.modifiedCount) {
+			console.log("Successfully updated...");
+			// res.redirect("https://www.google.com/");
+		}
+	});
+})
 
+app.post("/updateAdmission", async (req, res) => {
+	console.log("This is /updateAdmission...")
+	const objBody = req.body;
+	console.log(objBody);
+	const admissionUniqueId = req.body.documentKey;
 
+	console.log("The _id is " + admissionUniqueId);
+	AdmissionsModel.updateOne({ _id: admissionUniqueId }, {
+		$set: {
+			title: objBody.title,
+			desc1: objBody.desc1,
+			desc2: objBody.desc2,
+			link1: objBody.link1,
+			link2: objBody.link2,
+			link3: objBody.link3,
+			link4: objBody.link4,
+		}
+	}).then(ack => {
+		console.log(ack);
+		if (ack.modifiedCount) {
+			console.log("Successfully updated...");
+			// res.redirect("https://www.google.com/");
+		}
+	});
+})
+
+app.post("/updateAnnouncements", async (req, res) => {
+	console.log("This is /AnnouncementsAdmission...")
+	const objBody = req.body;
+	console.log(objBody);
+	const announcementsUniqueId = req.body.documentKey;
+
+	console.log("The _id is " + announcementsUniqueId);
+	AnnouncementsModel.updateOne({ _id: announcementsUniqueId }, {
+		$set: {
+			title: objBody.title,
+			desc1: objBody.desc1,
+			desc2: objBody.desc2,
+			link1: objBody.link1,
+		}
+	}).then(ack => {
+		console.log(ack);
+		if (ack.modifiedCount) {
+			console.log("Successfully updated...");
+			// res.redirect("https://www.google.com/");
+		}
+	});
+})
+
+// listening...
 app.listen(port, () => {
 	console.log("Listening on the PORT for requests...")
 })
