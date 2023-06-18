@@ -144,12 +144,30 @@ const EventsSchema = new mongoose.Schema({
 	},
 });
 
+// Schema for Resources-page
+const placementSchema = new mongoose.Schema({
+	title: {
+		type: String,
+	},
+	desc: {
+		type: String,
+	},
+	link: {
+		type: String
+	},
+	date: {
+		type: Date,
+		default: Date.now,
+	},
+});
+
 const User = db1.model('users', UserSchema);
 const ResourcesModel = dbResources.model('user', ResourcesSchema);
 const AdmissionsModel = dbAdmissions.model("admission", AdmissionSchema);
 const AnnouncementsModel = dbAnnouncements.model("announcement", AdmissionSchema);
 const AboutModel = dbAbout.model("about", AboutSchema);
 const EventsModel = dbEvents.model("event", EventsSchema);
+const PlacementsModel = dbPlacements.model("placement", placementSchema);
 // User.createIndexes();
 
 // For backend and express
@@ -247,6 +265,18 @@ app.post("/registerEvents", async (req, resp) => {
 	}
 });
 
+app.post("/registerPlacements", async (req, resp) => {
+	console.log(req.body);
+	try {
+		const userPlacements = new PlacementsModel(req.body);
+		let resultPlacements = await userPlacements.save();
+		resultPlacements = resultPlacements.toObject();
+
+	} catch (e) {
+		resp.send("Something Went Wrong");
+	}
+});
+
 app.get("/api", (req, res) => {
 	User.find({}).then((data) => {
 		res.send(data)
@@ -284,6 +314,13 @@ app.get("/apiAbouts", (req, res) => {
 
 app.get("/apiEvents", (req, res) => {
 	EventsModel.find({}).then((data) => {
+		res.send(data)
+		return data;
+	})
+})
+
+app.get("/apiPlacements", (req, res) => {
+	PlacementsModel.find({}).then((data) => {
 		res.send(data)
 		return data;
 	})
@@ -340,6 +377,16 @@ app.post("/deleteEvents", async (req, res) => {
 
 	console.log("the _id is: " + uniqueEventsId);
 	EventsModel.deleteOne({ _id: uniqueEventsId }).then((e) => { console.log(e) });
+})
+
+// resource page
+app.post("/deletePlacements", async (req, res) => {
+	console.log("This is /deletePlacements...")
+	console.log(req.body)
+	const uniquePlacementsId = req.body.key;
+
+	console.log("the _id is: " + uniquePlacementsId);
+	PlacementsModel.deleteOne({ _id: uniquePlacementsId }).then((e) => { console.log(e) });
 })
 
 app.post("/updateAbouts", async (req, res) => {
@@ -445,6 +492,28 @@ app.post("/updateEvents", async (req, res) => {
 			desc: objBody.desc,
 			link: objBody.link,
 			img : objBody.img
+		}
+	}).then(ack => {
+		console.log(ack);
+		if (ack.modifiedCount) {
+			console.log("Successfully updated...");
+			// res.redirect("https://www.google.com/");
+		}
+	});
+})
+
+app.post("/updatePlacements", async (req, res) => {
+	console.log("This is /updateResources...")
+	const objBody = req.body;
+	console.log(objBody);
+	const placementsUniqueId = req.body.documentKey;
+
+	console.log("The _id is " + placementsUniqueId);
+	PlacementsModel.updateOne({ _id: placementsUniqueId }, {
+		$set: {
+			title: objBody.title,
+			desc: objBody.desc,
+			link: objBody.link
 		}
 	}).then(ack => {
 		console.log(ack);
