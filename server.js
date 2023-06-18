@@ -9,6 +9,8 @@ const dbResources = mongoose.createConnection(process.env.MONGODB_URI_RESOURCES 
 const dbAnnouncements = mongoose.createConnection(process.env.MONGODB_URI_ANNOUNCEMENTS + "Announcements")
 const dbAdmissions = mongoose.createConnection(process.env.MONGODB_URI_ADMISSIONS + "Admissions")
 const dbAbout = mongoose.createConnection(`${process.env.MONGODB_URI_ABOUT}About`)
+const dbEvents = mongoose.createConnection(process.env.MONGODB_URI_EVENTS + "Events")
+const dbPlacements = mongoose.createConnection(process.env.MONGODB_URI_PLACEMENTS + "Placements")
 
 const port = process.env.port || 5000;
 
@@ -122,11 +124,32 @@ const AboutSchema = new mongoose.Schema({
 	},
 });
 
+// Schema for Resources-page
+const EventsSchema = new mongoose.Schema({
+	title: {
+		type: String,
+	},
+	desc: {
+		type: String,
+	},
+	link: {
+		type: String
+	},
+	img : {
+		type: String
+	},
+	date: {
+		type: Date,
+		default: Date.now,
+	},
+});
+
 const User = db1.model('users', UserSchema);
 const ResourcesModel = dbResources.model('user', ResourcesSchema);
 const AdmissionsModel = dbAdmissions.model("admission", AdmissionSchema);
 const AnnouncementsModel = dbAnnouncements.model("announcement", AdmissionSchema);
 const AboutModel = dbAbout.model("about", AboutSchema);
+const EventsModel = dbEvents.model("event", EventsSchema);
 // User.createIndexes();
 
 // For backend and express
@@ -212,6 +235,18 @@ app.post("/registerAbouts", async (req, resp) => {
 	}
 });
 
+app.post("/registerEvents", async (req, resp) => {
+	console.log(req.body);
+	try {
+		const userEvents = new EventsModel(req.body);
+		let resultEvents = await userEvents.save();
+		resultEvents = resultEvents.toObject();
+
+	} catch (e) {
+		resp.send("Something Went Wrong");
+	}
+});
+
 app.get("/api", (req, res) => {
 	User.find({}).then((data) => {
 		res.send(data)
@@ -242,6 +277,13 @@ app.get("/apiAnnouncements", (req, res) => {
 
 app.get("/apiAbouts", (req, res) => {
 	AboutModel.find({}).then((data) => {
+		res.send(data)
+		return data;
+	})
+})
+
+app.get("/apiEvents", (req, res) => {
+	EventsModel.find({}).then((data) => {
 		res.send(data)
 		return data;
 	})
@@ -289,6 +331,15 @@ app.post("/deleteAbouts", async (req, res) => {
 
 	console.log("the _id is: " + uniqueAboutsId);
 	AboutModel.deleteOne({ _id: uniqueAboutsId }).then((e) => { console.log(e) });
+})
+
+// Events page
+app.post("/deleteEvents", async (req, res) => {
+	console.log(req.body)
+	const uniqueEventsId = req.body.key;
+
+	console.log("the _id is: " + uniqueEventsId);
+	EventsModel.deleteOne({ _id: uniqueEventsId }).then((e) => { console.log(e) });
 })
 
 app.post("/updateAbouts", async (req, res) => {
@@ -359,7 +410,7 @@ app.post("/updateAdmission", async (req, res) => {
 })
 
 app.post("/updateAnnouncements", async (req, res) => {
-	console.log("This is /AnnouncementsAdmission...")
+	console.log("This is /updateAnnouncements...")
 	const objBody = req.body;
 	console.log(objBody);
 	const announcementsUniqueId = req.body.documentKey;
@@ -371,6 +422,29 @@ app.post("/updateAnnouncements", async (req, res) => {
 			desc1: objBody.desc1,
 			desc2: objBody.desc2,
 			link1: objBody.link1,
+		}
+	}).then(ack => {
+		console.log(ack);
+		if (ack.modifiedCount) {
+			console.log("Successfully updated...");
+			// res.redirect("https://www.google.com/");
+		}
+	});
+})
+
+app.post("/updateEvents", async (req, res) => {
+	console.log("This is /updateEvents...")
+	const objBody = req.body;
+	console.log(objBody);
+	const eventsUniqueId = req.body.documentKey;
+
+	console.log("The _id is " + eventsUniqueId);
+	EventsModel.updateOne({ _id: eventsUniqueId }, {
+		$set: {
+			title: objBody.title,
+			desc: objBody.desc,
+			link: objBody.link,
+			img : objBody.img
 		}
 	}).then(ack => {
 		console.log(ack);
