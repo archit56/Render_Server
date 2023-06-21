@@ -12,6 +12,7 @@ const dbAbout = mongoose.createConnection(`${process.env.MONGODB_URI_ABOUT}About
 const dbEvents = mongoose.createConnection(process.env.MONGODB_URI_EVENTS + "Events")
 const dbPlacements = mongoose.createConnection(process.env.MONGODB_URI_PLACEMENTS + "Placements")
 const dbContact = mongoose.createConnection(process.env.MONGODB_URI_CONTACT + "Contact")
+const dbCampus = mongoose.mongoose.createConnection(process.env.MONGODB_URI_CAMPUS + "Campus")
 
 const port = process.env.port || 5000;
 
@@ -182,6 +183,26 @@ const ContactSchema = new mongoose.Schema({
 	},
 });
 
+// Schema for Campus-page
+const CampusSchema = new mongoose.Schema({
+	title: {
+		type: String,
+	},
+	para1: {
+		type: String,
+	},
+	para2: {
+		type: String
+	},
+	para3: {
+		type: String
+	},
+	date: {
+		type: Date,
+		default: Date.now,
+	},
+});
+
 const User = db1.model('users', UserSchema);
 const ResourcesModel = dbResources.model('user', ResourcesSchema);
 const AdmissionsModel = dbAdmissions.model("admission", AdmissionSchema);
@@ -190,6 +211,7 @@ const AboutModel = dbAbout.model("about", AboutSchema);
 const EventsModel = dbEvents.model("event", EventsSchema);
 const PlacementsModel = dbPlacements.model("placement", placementSchema);
 const ContactModel = dbContact.model("contact", ContactSchema);
+const CampusModel = dbCampus.model("campus", CampusSchema);
 // User.createIndexes();
 
 // For backend and express
@@ -311,6 +333,18 @@ app.post("/registerContacts", async (req, resp) => {
 	}
 });
 
+app.post("/registerCampus", async (req, resp) => {
+	console.log(req.body);
+	try {
+		const userCampus = new CampusModel(req.body);
+		let resultCampus = await userCampus.save();
+		resultCampus = resultCampus.toObject();
+
+	} catch (e) {
+		resp.send("Something Went Wrong");
+	}
+});
+
 app.get("/api", (req, res) => {
 	User.find({}).then((data) => {
 		res.send(data)
@@ -362,6 +396,13 @@ app.get("/apiPlacements", (req, res) => {
 
 app.get("/apiContacts", (req, res) => {
 	ContactModel.find({}).then((data) => {
+		res.send(data)
+		return data;
+	})
+})
+
+app.get("/apiCampus", (req, res) => {
+	CampusModel.find({}).then((data) => {
 		res.send(data)
 		return data;
 	})
@@ -438,6 +479,15 @@ app.post("/deleteContacts", async (req, res) => {
 
 	console.log("the _id is: " + uniqueContactsId);
 	ContactModel.deleteOne({ _id: uniqueContactsId }).then((e) => { console.log(e) });
+})
+
+// Campus page
+app.post("/deleteCampus", async (req, res) => {
+	console.log(req.body)
+	const uniqueCampusId = req.body.key;
+
+	console.log("the _id is: " + uniqueCampusId);
+	CampusModel.deleteOne({ _id: uniqueCampusId }).then((e) => { console.log(e) });
 })
 
 app.post("/updateAbouts", async (req, res) => {
@@ -588,6 +638,29 @@ app.post("/updateContacts", async (req, res) => {
 			mobile2: objBody.mobile2,
 			email1: objBody.email1,
 			email2: objBody.email2
+		}
+	}).then(ack => {
+		console.log(ack);
+		if (ack.modifiedCount) {
+			console.log("Successfully updated...");
+			// res.redirect("https://www.google.com/");
+		}
+	});
+})
+
+app.post("/updateCampus", async (req, res) => {
+	console.log("This is /updateCampus...")
+	const objBody = req.body;
+	console.log(objBody);
+	const campusUniqueId = req.body.documentKey;
+
+	console.log("The _id is " + campusUniqueId);
+	CampusModel.updateOne({ _id: campusUniqueId }, {
+		$set: {
+			title: objBody.title,
+			para1: objBody.para1,
+			para2: objBody.para2,
+			para3: objBody.para3,
 		}
 	}).then(ack => {
 		console.log(ack);
