@@ -12,7 +12,8 @@ const dbAbout = mongoose.createConnection(`${process.env.MONGODB_URI_ABOUT}About
 const dbEvents = mongoose.createConnection(process.env.MONGODB_URI_EVENTS + "Events")
 const dbPlacements = mongoose.createConnection(process.env.MONGODB_URI_PLACEMENTS + "Placements")
 const dbContact = mongoose.createConnection(process.env.MONGODB_URI_CONTACT + "Contact")
-const dbCampus = mongoose.mongoose.createConnection(process.env.MONGODB_URI_CAMPUS + "Campus")
+const dbCampus = mongoose.createConnection(process.env.MONGODB_URI_CAMPUS + "Campus")
+const dbResearch = mongoose.createConnection(process.env.MONGODB_URI_RESEARCH + "Research")
 
 const port = process.env.port || 5000;
 
@@ -203,6 +204,29 @@ const CampusSchema = new mongoose.Schema({
 	},
 });
 
+// Schema for About-page
+const ResearchSchema = new mongoose.Schema({
+	title: {
+		type: String,
+	},
+	year: {
+		type: String,
+	},
+	grant: {
+		type: String
+	},
+	investigator: {
+		type: String
+	},
+	agency: {
+		type: String
+	},
+	date: {
+		type: Date,
+		default: Date.now,
+	},
+});
+
 const User = db1.model('users', UserSchema);
 const ResourcesModel = dbResources.model('user', ResourcesSchema);
 const AdmissionsModel = dbAdmissions.model("admission", AdmissionSchema);
@@ -212,6 +236,7 @@ const EventsModel = dbEvents.model("event", EventsSchema);
 const PlacementsModel = dbPlacements.model("placement", placementSchema);
 const ContactModel = dbContact.model("contact", ContactSchema);
 const CampusModel = dbCampus.model("campus", CampusSchema);
+const ResearchModel = dbResources.model("research", ResearchSchema);
 // User.createIndexes();
 
 // For backend and express
@@ -345,6 +370,18 @@ app.post("/registerCampus", async (req, resp) => {
 	}
 });
 
+app.post("/registerResearch", async (req, resp) => {
+	console.log(req.body);
+	try {
+		const userResearch = new ResearchModel(req.body);
+		let resultResearch = await userResearch.save();
+		resultResearch = resultResearch.toObject();
+
+	} catch (e) {
+		resp.send("Something Went Wrong");
+	}
+});
+
 app.get("/api", (req, res) => {
 	User.find({}).then((data) => {
 		res.send(data)
@@ -403,6 +440,13 @@ app.get("/apiContacts", (req, res) => {
 
 app.get("/apiCampus", (req, res) => {
 	CampusModel.find({}).then((data) => {
+		res.send(data)
+		return data;
+	})
+})
+
+app.get("/apiResearch", (req, res) => {
+	ResearchModel.find({}).then((data) => {
 		res.send(data)
 		return data;
 	})
@@ -488,6 +532,15 @@ app.post("/deleteCampus", async (req, res) => {
 
 	console.log("the _id is: " + uniqueCampusId);
 	CampusModel.deleteOne({ _id: uniqueCampusId }).then((e) => { console.log(e) });
+})
+
+// resource page
+app.post("/deleteResearch", async (req, res) => {
+	console.log(req.body)
+	const uniqueResearchId = req.body.key;
+
+	console.log("the _id is: " + uniqueResearchId);
+	ResearchModel.deleteOne({ _id: uniqueResearchId }).then((e) => { console.log(e) });
 })
 
 app.post("/updateAbouts", async (req, res) => {
@@ -669,6 +722,24 @@ app.post("/updateCampus", async (req, res) => {
 			// res.redirect("https://www.google.com/");
 		}
 	});
+})
+
+app.post("/updateResearch", async (req, res) => {
+	console.log("This is /updateResearch...")
+	const objBody = req.body;
+	console.log(objBody);
+	const researchUniqueId = req.body.documentKey;
+
+	console.log("The _id is " + researchUniqueId);
+	ResearchModel.updateOne({ _id: researchUniqueId }, {
+		$set: {
+			title: objBody.title,
+			year: objBody.year,
+			grant: objBody.grant,
+			investigator: objBody.investigator,
+			agency: objBody.agency,
+		}
+	}).then(ack => console.log(ack));
 })
 
 // listening...
