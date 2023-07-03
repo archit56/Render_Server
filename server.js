@@ -13,7 +13,8 @@ const dbEvents = mongoose.createConnection(process.env.MONGODB_URI_EVENTS + "Eve
 const dbPlacements = mongoose.createConnection(process.env.MONGODB_URI_PLACEMENTS + "Placements")
 const dbContact = mongoose.createConnection(process.env.MONGODB_URI_CONTACT + "Contact")
 const dbCampus = mongoose.createConnection(process.env.MONGODB_URI_CAMPUS + "Campus")
-const dbResearch = mongoose.createConnection(process.env.MONGODB_URI_RESEARCH + "Research")
+
+
 
 const port = process.env.port || 5000;
 
@@ -255,6 +256,23 @@ app.get("/", (req, resp) => {
 	resp.send("App is Working");
 });
 
+//!
+let isLogged= false;
+app.post("/login", (req,resp) => {
+	console.log(req.body);
+	try {
+		isLogged = req.body.isLogged;
+		// resp.json([{isLogged: isLogged}]);
+	} catch (e) {
+		resp.send("Something Went Wrong");
+	}
+});
+
+app.get("/login",(req,resp) => {
+	resp.json([{ isLogged : isLogged }]);
+} );
+
+//!
 
 app.post("/register", async (req, resp) => {
 	try {
