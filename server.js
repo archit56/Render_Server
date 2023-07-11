@@ -4,15 +4,15 @@ require("dotenv").config();
 
 const mongoose = require('mongoose');
 
-const db1 = mongoose.createConnection(process.env.MONGODB_URI);
-const dbResources = mongoose.createConnection(process.env.MONGODB_URI_RESOURCES + "Test2")
-const dbAnnouncements = mongoose.createConnection(process.env.MONGODB_URI_ANNOUNCEMENTS + "Announcements")
-const dbAdmissions = mongoose.createConnection(process.env.MONGODB_URI_ADMISSIONS + "Admissions")
-const dbAbout = mongoose.createConnection(`${process.env.MONGODB_URI_ABOUT}About`)
-const dbEvents = mongoose.createConnection(process.env.MONGODB_URI_EVENTS + "Events")
-const dbPlacements = mongoose.createConnection(process.env.MONGODB_URI_PLACEMENTS + "Placements")
 const dbContact = mongoose.createConnection(process.env.MONGODB_URI_CONTACT + "Contact")
-const dbCampus = mongoose.createConnection(process.env.MONGODB_URI_CAMPUS + "Campus")
+// const db1 = mongoose.createConnection(process.env.MONGODB_URI);
+// const dbResources = mongoose.createConnection(process.env.MONGODB_URI_RESOURCES + "Test2")
+// const dbAnnouncements = mongoose.createConnection(process.env.MONGODB_URI_ANNOUNCEMENTS + "Announcements")
+// const dbAdmissions = mongoose.createConnection(process.env.MONGODB_URI_ADMISSIONS + "Admissions")
+// const dbAbout = mongoose.createConnection(`${process.env.MONGODB_URI_ABOUT}About`)
+// const dbEvents = mongoose.createConnection(process.env.MONGODB_URI_EVENTS + "Events")
+// const dbPlacements = mongoose.createConnection(process.env.MONGODB_URI_PLACEMENTS + "Placements")
+// const dbCampus = mongoose.createConnection(process.env.MONGODB_URI_CAMPUS + "Campus")
 
 const port = process.env.port || 5000;
 
@@ -226,16 +226,16 @@ const ResearchSchema = new mongoose.Schema({
 	},
 });
 
-const User = db1.model('users', UserSchema);
-const ResourcesModel = dbResources.model('user', ResourcesSchema);
-const AdmissionsModel = dbAdmissions.model("admission", AdmissionSchema);
-const AnnouncementsModel = dbAnnouncements.model("announcement", AdmissionSchema);
-const AboutModel = dbAbout.model("about", AboutSchema);
-const EventsModel = dbEvents.model("event", EventsSchema);
-const PlacementsModel = dbPlacements.model("placement", placementSchema);
+// const User = db1.model('users', UserSchema);
+const ResourcesModel = dbContact.model('resource', ResourcesSchema);
+const AdmissionsModel = dbContact.model("admission", AdmissionSchema);
+const AnnouncementsModel = dbContact.model("announcement", AdmissionSchema);
+const AboutModel = dbContact.model("about", AboutSchema);
+const EventsModel = dbContact.model("event", EventsSchema);
+const PlacementsModel = dbContact.model("placement", placementSchema);
 const ContactModel = dbContact.model("contact", ContactSchema);
-const CampusModel = dbCampus.model("campus", CampusSchema);
-const ResearchModel = dbResources.model("research", ResearchSchema);
+const CampusModel = dbContact.model("campus", CampusSchema);
+const ResearchModel = dbContact.model("research", ResearchSchema);
 // User.createIndexes();
 
 // For backend and express
@@ -251,7 +251,7 @@ app.use(cors());
 
 
 app.get("/", (req, resp) => {
-	resp.send("App is Working");
+	resp.send("The server is working...");
 });
 
 //!
@@ -272,23 +272,23 @@ app.get("/login",(req,resp) => {
 
 //!
 
-app.post("/register", async (req, resp) => {
-	try {
-		const user = new User(req.body);
-		let result = await user.save();
-		result = result.toObject();
-		if (result) {
-			delete result.password;
-			resp.send(req.body);
-			console.log(result);
-		} else {
-			console.log("User already register");
-		}
+// app.post("/register", async (req, resp) => {
+// 	try {
+// 		const user = new User(req.body);
+// 		let result = await user.save();
+// 		result = result.toObject();
+// 		if (result) {
+// 			delete result.password;
+// 			resp.send(req.body);
+// 			console.log(result);
+// 		} else {
+// 			console.log("User already register");
+// 		}
 
-	} catch (e) {
-		resp.send("Something Went Wrong");
-	}
-});
+// 	} catch (e) {
+// 		resp.send("Something Went Wrong");
+// 	}
+// });
 
 app.post("/registerResources", async (req, resp) => {
 	console.log(req.body);
@@ -398,12 +398,12 @@ app.post("/registerResearch", async (req, resp) => {
 	}
 });
 
-app.get("/api", (req, res) => {
-	User.find({}).then((data) => {
-		res.send(data)
-		return data;
-	})
-})
+// app.get("/api", (req, res) => {
+// 	User.find({}).then((data) => {
+// 		res.send(data)
+// 		return data;
+// 	})
+// })
 
 app.get("/apiResources", (req, res) => {
 	ResourcesModel.find({}).then((data) => {
@@ -468,13 +468,13 @@ app.get("/apiResearch", (req, res) => {
 	})
 })
 
-app.post("/delete", async (req, res) => {
-	console.log(req.body)
-	const uniqueID = req.body.uniqueID;
+// app.post("/delete", async (req, res) => {
+// 	console.log(req.body)
+// 	const uniqueID = req.body.uniqueID;
 
-	User.deleteOne({ _id: uniqueID }).then((e) => { console.log(e) });
+// 	User.deleteOne({ _id: uniqueID }).then((e) => { console.log(e) });
 
-})
+// })
 
 // resource page
 app.post("/deleteResources", async (req, res) => {
