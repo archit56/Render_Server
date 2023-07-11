@@ -14,8 +14,6 @@ const dbPlacements = mongoose.createConnection(process.env.MONGODB_URI_PLACEMENT
 const dbContact = mongoose.createConnection(process.env.MONGODB_URI_CONTACT + "Contact")
 const dbCampus = mongoose.createConnection(process.env.MONGODB_URI_CAMPUS + "Campus")
 
-
-
 const port = process.env.port || 5000;
 
 // Schema for users of app
@@ -493,7 +491,8 @@ app.post("/deleteAdmissions", async (req, res) => {
 	const uniqueAdmissionsId = req.body.key;
 
 	console.log("the _id is: " + uniqueAdmissionsId);
-	AdmissionsModel.deleteOne({ _id: uniqueAdmissionsId }).then((e) => { console.log(e) });
+	AdmissionsModel.deleteOne({ _id: uniqueAdmissionsId })
+	.then((e) => { console.log(e) });
 })
 
 // Announcements page
@@ -603,7 +602,6 @@ app.post("/updateResources", async (req, res) => {
 })
 
 app.post("/updateAdmission", async (req, res) => {
-	console.log("This is /updateAdmission...")
 	const objBody = req.body;
 	console.log(objBody);
 	const admissionUniqueId = req.body.documentKey;
@@ -623,7 +621,6 @@ app.post("/updateAdmission", async (req, res) => {
 		console.log(ack);
 		if (ack.modifiedCount) {
 			console.log("Successfully updated...");
-			// res.redirect("https://www.google.com/");
 		}
 	});
 })
